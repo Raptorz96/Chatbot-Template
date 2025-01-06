@@ -1,19 +1,18 @@
 import streamlit as st
+import os
+import glob
+import uuid
 from langchain_community.chat_models import ChatOpenAI
 from src.database.chroma_db import get_chroma_client, query_knowledge
 from src.config import OPENAI_API_KEY
 from src.utils.logging import logger
-import uuid
-import sys
-import os
-import glob
-import streamlit as st
 
+# Debug environment function
 def debug_environment():
-    st.write("### Debug: Directory corrente (root del progetto):")
+    st.write("### Debug: Directory corrente (root):")
     st.write(os.getcwd())  # Mostra la directory corrente
 
-    st.write("### Debug: Contenuto della directory corrente:")
+    st.write("### Debug: Contenuto della root:")
     st.write(glob.glob("*"))  # Mostra i file/cartelle nella root
 
     st.write("### Debug: Contenuto di src/:")
@@ -25,10 +24,7 @@ def debug_environment():
     st.write("### Debug: Contenuto di src/utils/:")
     st.write(glob.glob("src/utils/*"))  # Mostra i file in src/utils
 
-debug_environment()
-
-
-
+debug_environment()  # Esegui il debug all'inizio
 
 # Configura il percorso della directory `src` per i moduli
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
