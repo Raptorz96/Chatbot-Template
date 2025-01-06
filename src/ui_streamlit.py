@@ -1,8 +1,8 @@
 import streamlit as st
 from langchain_community.chat_models import ChatOpenAI
-from database.chroma_db import get_chroma_client, query_knowledge
-from config import OPENAI_API_KEY
-from utils.logging import logger
+from src.database.chroma_db import get_chroma_client, query_knowledge
+from src.config import OPENAI_API_KEY
+from src.utils.logging import logger
 import uuid
 import sys
 import os
