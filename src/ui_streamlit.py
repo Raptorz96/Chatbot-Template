@@ -9,8 +9,18 @@ import os
 import glob
 import streamlit as st
 
-st.write("Files in /mount/src/chatbot-template/src:")
+st.write("Debug: Root files:")
+st.write(glob.glob("/mount/src/chatbot-template/*"))
+
+st.write("Debug: Files in src/")
 st.write(glob.glob("/mount/src/chatbot-template/src/*"))
+
+st.write("Debug: Files in src/database/")
+st.write(glob.glob("/mount/src/chatbot-template/src/database/*"))
+
+st.write("Debug: Files in src/utils/")
+st.write(glob.glob("/mount/src/chatbot-template/src/utils/*"))
+
 
 
 # Configura il percorso della directory `src` per i moduli
