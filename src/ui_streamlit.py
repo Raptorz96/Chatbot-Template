@@ -7,10 +7,12 @@ import uuid
 import sys
 import os
 
-# Aggiunge il percorso della directory `src` al sys.path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
+# Configura il percorso della directory `src` per i moduli
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
 
-# Genera un ID univoco per ogni sessione
+# Genera un ID univoco per la sessione
 session_id = str(uuid.uuid4())
 logger.info(f"Nuova sessione avviata: {session_id}")
 
