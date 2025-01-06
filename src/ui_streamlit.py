@@ -9,17 +9,24 @@ import os
 import glob
 import streamlit as st
 
-st.write("Debug: Root files:")
-st.write(glob.glob("/mount/src/chatbot-template/*"))
+def debug_environment():
+    st.write("### Debug: Directory corrente (root del progetto):")
+    st.write(os.getcwd())  # Mostra la directory corrente
 
-st.write("Debug: Files in src/")
-st.write(glob.glob("/mount/src/chatbot-template/src/*"))
+    st.write("### Debug: Contenuto della directory corrente:")
+    st.write(glob.glob("*"))  # Mostra i file/cartelle nella root
 
-st.write("Debug: Files in src/database/")
-st.write(glob.glob("/mount/src/chatbot-template/src/database/*"))
+    st.write("### Debug: Contenuto di src/:")
+    st.write(glob.glob("src/*"))  # Mostra i file nella cartella src
 
-st.write("Debug: Files in src/utils/")
-st.write(glob.glob("/mount/src/chatbot-template/src/utils/*"))
+    st.write("### Debug: Contenuto di src/database/:")
+    st.write(glob.glob("src/database/*"))  # Mostra i file in src/database
+
+    st.write("### Debug: Contenuto di src/utils/:")
+    st.write(glob.glob("src/utils/*"))  # Mostra i file in src/utils
+
+debug_environment()
+
 
 
 
