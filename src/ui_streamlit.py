@@ -4,6 +4,11 @@ from src.database.chroma_db import get_chroma_client, query_knowledge
 from src.config import OPENAI_API_KEY
 from src.utils.logging import logger
 import uuid
+import sys
+import os
+
+# Aggiunge il percorso della directory `src` al sys.path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
 
 # Genera un ID univoco per ogni sessione
 session_id = str(uuid.uuid4())
