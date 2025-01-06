@@ -6,6 +6,12 @@ from src.utils.logging import logger
 import uuid
 import sys
 import os
+import glob
+import streamlit as st
+
+st.write("Files in /mount/src/chatbot-template/src:")
+st.write(glob.glob("/mount/src/chatbot-template/src/*"))
+
 
 # Configura il percorso della directory `src` per i moduli
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
