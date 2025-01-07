@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import glob
 import uuid
+import sys  # Import necessario per lavorare con il percorso
 from langchain_community.chat_models import ChatOpenAI
 from src.database.chroma_db import get_chroma_client, query_knowledge
 from src.config import OPENAI_API_KEY
