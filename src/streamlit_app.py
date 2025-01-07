@@ -25,30 +25,6 @@ except ImportError:
         st.error(f"Errore nell'importazione dei moduli: {str(e)}")
         st.stop()
 
-# Funzione di debug dell'ambiente
-def debug_environment():
-    st.write("### Debug: Directory corrente (root):")
-    st.write(os.getcwd())
-
-    st.write("### Debug: Contenuto della root:")
-    st.write(glob.glob("*"))
-
-    st.write("### Debug: Contenuto di src/:")
-    st.write(glob.glob("src/*"))
-
-    st.write("### Debug: Contenuto di src/database/:")
-    st.write(glob.glob("src/database/*"))
-
-    st.write("### Debug: Contenuto di src/utils/:")
-    st.write(glob.glob("src/utils/*"))
-
-    # Mostra il PYTHONPATH
-    st.write("### Debug: PYTHONPATH:")
-    st.write(sys.path)
-
-# Esegui il debug all'avvio
-debug_environment()
-
 # Genera un ID univoco per la sessione
 session_id = str(uuid.uuid4())
 logger.info(f"Nuova sessione avviata: {session_id}")
