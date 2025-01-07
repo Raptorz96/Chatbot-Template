@@ -1,4 +1,4 @@
-# AI-Powered Insurance Chatbot Template
+# Insurance Chatbot Template
 
 An intelligent customer service chatbot for the insurance industry, built with modern AI and NLP technologies. This template provides a ready-to-use solution for insurance companies looking to improve their customer service through AI-powered automation.
 
@@ -25,8 +25,8 @@ An intelligent customer service chatbot for the insurance industry, built with m
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/insurance-chatbot.git
-cd insurance-chatbot
+git clone https://github.com/Raptorz96/Chatbot-Template.git
+cd Chatbot-Template
 ```
 
 2. Create and activate a virtual environment:
@@ -106,14 +106,10 @@ This template can be easily customized for various insurance industry use cases:
 - Token streaming responses
 - Response caching system
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to this project.
 
 ## 📞 Support
 
-For support and queries, please open an issue in the GitHub repository.
+For support and queries, please open an issue in the GitHub repository: [Chatbot-Template Issues](https://github.com/Raptorz96/Chatbot-Template/issues)
