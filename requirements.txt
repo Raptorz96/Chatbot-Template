@@ -4,6 +4,8 @@ langchain-community
 chromadb
 python-dotenv
 -e .
+pysqlite3-binary
+
 
 
 
