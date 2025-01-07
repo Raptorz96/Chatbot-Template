@@ -106,6 +106,10 @@ This template can be easily customized for various insurance industry use cases:
 - Token streaming responses
 - Response caching system
 
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to this project.
