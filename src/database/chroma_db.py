@@ -1,3 +1,8 @@
+# Aggiungiamo il fix per SQLite all'inizio del file
+import sys
+import pysqlite3
+sys.modules['sqlite3'] = pysqlite3
+
 import chromadb
 from chromadb.config import Settings
 

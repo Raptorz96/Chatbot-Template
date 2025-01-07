@@ -1,11 +1,11 @@
 streamlit
 langchain
 langchain-community
+pysqlite3-binary>=0.5.0
 chromadb
 python-dotenv
--e .
-pysqlite3-binary
-
-
+openai  # Necessario per ChatOpenAI
+uuid    # Per la generazione degli ID di sessione
+-e .    # Per installare il tuo pacchetto locale
 
 
