@@ -4,6 +4,12 @@ import glob
 import uuid
 import sys  # Import necessario per lavorare con il percorso
 from langchain_community.chat_models import ChatOpenAI
+
+# Configura il percorso della directory `src` per i moduli
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)  # Aggiunge il percorso di `src` al PYTHONPATH
+
 from src.database.chroma_db import get_chroma_client, query_knowledge
 from src.config import OPENAI_API_KEY
 from src.utils.logging import logger
@@ -26,11 +32,6 @@ def debug_environment():
     st.write(glob.glob("src/utils/*"))  # Mostra i file in src/utils
 
 debug_environment()  # Esegui il debug all'inizio
-
-# Configura il percorso della directory `src` per i moduli
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if BASE_DIR not in sys.path:
-    sys.path.append(BASE_DIR)
 
 # Genera un ID univoco per la sessione
 session_id = str(uuid.uuid4())
