@@ -6,21 +6,22 @@ import sys
 from langchain_community.chat_models import ChatOpenAI
 
 # Configura il percorso della directory `src`
-BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-src_path = os.path.join(BASE_DIR, "src")
-if src_path not in sys.path:
-    sys.path.insert(0, src_path)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
 
 # Gestione delle importazioni con fallback
 try:
     from src.database.chroma_db import get_chroma_client, query_knowledge
     from src.config import OPENAI_API_KEY
     from src.utils.logging import logger
+    from src.utils.streaming import get_streaming_response
 except ImportError:
     try:
         from database.chroma_db import get_chroma_client, query_knowledge
         from config import OPENAI_API_KEY
         from utils.logging import logger
+        from utils.streaming import get_streaming_response
     except ImportError as e:
         st.error(f"Errore nell'importazione dei moduli: {str(e)}")
         st.stop()
@@ -73,21 +74,30 @@ try:
             # Prompt per il modello OpenAI
             prompt_text = f"Con il seguente contesto: {context}, spiega brevemente: {user_input}"
 
-            # Modello OpenAI
-            llm = ChatOpenAI(openai_api_key=OPENAI_API_KEY, temperature=0.7)
+            # Modello OpenAI con streaming abilitato
+            llm = ChatOpenAI(
+                openai_api_key=OPENAI_API_KEY, 
+                temperature=0.7,
+                streaming=True,
+                model_name="gpt-3.5-turbo"  # Specifichiamo il modello
+            )
 
-            # Genera la risposta
-            risposta = llm.invoke(prompt_text)
+            # Container per la risposta streaming
+            st.write("### Risposta generata:")
+            response_container = st.empty()
+
+            # Genera la risposta con streaming
+            risposta = get_streaming_response(llm, prompt_text, response_container)
 
             # Log della risposta
-            logger.info(f"Sessione: {session_id} - Risposta: {risposta}")
-
-            # Mostra la risposta
-            st.write("### Risposta generata:")
-            st.write(risposta)
+            if risposta:
+                logger.info(f"Sessione: {session_id} - Risposta: {risposta}")
+            else:
+                logger.error(f"Sessione: {session_id} - Errore nella generazione della risposta")
 
         except Exception as e:
             st.error(f"Si è verificato un errore: {str(e)}")
+            logger.error(f"Sessione: {session_id} - Errore: {str(e)}")
 
     # Calcolo premi assicurativi
     st.subheader("Calcola il tuo premio assicurativo:")
