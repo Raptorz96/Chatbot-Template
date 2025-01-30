@@ -1,16 +1,20 @@
+# Fix SQLite - DEVE essere prima di qualsiasi altro import
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 import chromadb
 from chromadb.config import Settings
 
 def get_chroma_client():
     """
-    Inizializza il client ChromaDB in memoria.
+    Inizializza il client ChromaDB.
     Returns:
         ChromaDB client instance
     """
     settings = Settings(
         anonymized_telemetry=False,
-        is_persistent=False,  # Usiamo il database in memoria
-        chroma_db_impl="duckdb+parquet"  # Cambiamo l'implementazione del database
+        is_persistent=False  # Usiamo il database in memoria
     )
     
     client = chromadb.Client(settings)
