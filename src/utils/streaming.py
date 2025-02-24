@@ -27,3 +27,22 @@ def get_streaming_response(llm, prompt, container):
     except Exception as e:
         container.error(f"Si è verificato un errore: {str(e)}")
         return None
+
+def sanitize_input(text):
+    """
+    Sanitizza l'input dell'utente per prevenire iniezioni e problemi.
+    
+    Args:
+        text: Testo da sanitizzare
+        
+    Returns:
+        Testo sanitizzato
+    """
+    if not text:
+        return text
+        
+    # Rimuovi caratteri potenzialmente pericolosi
+    sanitized = text.replace("<", "&lt;").replace(">", "&gt;")
+    
+    # Limita lunghezza
+    return sanitized[:500]

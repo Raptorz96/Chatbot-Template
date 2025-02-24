@@ -1,5 +1,6 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.2
 Name: Chatbot-Template
 Version: 0.1.0
 License-File: LICENSE
 Requires-Dist: streamlit
+Dynamic: requires-dist
