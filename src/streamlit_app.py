@@ -6,6 +6,14 @@ import sys
 import numpy as np
 from langchain_community.chat_models import ChatOpenAI
 
+# Fix per SQLite (DEVE ESSERE PRIMA DI QUALSIASI IMPORT DA CHROMADB)
+try:
+    __import__('pysqlite3')
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+except ImportError:
+    # Se fallisce, tenta di procedere con la versione di sistema
+    pass
+
 # Configura il percorso della directory `src`
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
@@ -13,18 +21,14 @@ if BASE_DIR not in sys.path:
 
 # Gestione delle importazioni con fallback
 try:
-    from src.database.chroma_db import get_chroma_client, query_knowledge, cached_query_knowledge, get_client_id
     from src.config import OPENAI_API_KEY
     from src.utils.logging import logger
     from src.utils.streaming import get_streaming_response, sanitize_input
-    from src.database.populate_db import populate_database
 except ImportError:
     try:
-        from database.chroma_db import get_chroma_client, query_knowledge, cached_query_knowledge, get_client_id
         from config import OPENAI_API_KEY
         from utils.logging import logger
         from utils.streaming import get_streaming_response, sanitize_input
-        from database.populate_db import populate_database
     except ImportError as e:
         st.error(f"Errore nell'importazione dei moduli: {str(e)}")
         st.stop()
@@ -111,17 +115,64 @@ logger.info(f"Nuova sessione avviata: {session_id}")
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Modalità fallback senza database
+DATABASE_MODE = "fallback"
+
 try:
-    # Inizializza il database
-    client = get_chroma_client()
-    client_id = get_client_id(client)
-    
-    # Popola il database
-    try:
-        populate_database(client)
-        logger.info("Database popolato con successo")
-    except Exception as e:
-        logger.error(f"Errore nel popolamento del database: {str(e)}")
+    # Importa moduli di database solo ora, dopo il fix sqlite
+    if DATABASE_MODE == "normal":
+        from src.database.chroma_db import get_chroma_client, query_knowledge, cached_query_knowledge, get_client_id
+        from src.database.populate_db import populate_database
+        
+        # Inizializza il database
+        client = get_chroma_client()
+        client_id = get_client_id(client)
+        
+        # Popola il database
+        try:
+            populate_database(client)
+            logger.info("Database popolato con successo")
+        except Exception as e:
+            logger.error(f"Errore nel popolamento del database: {str(e)}")
+    else:
+        # Usa dati di esempio incorporati
+        logger.info("Modalità fallback: utilizzo dati incorporati invece di ChromaDB")
+        
+        # Dati di esempio per FAQ
+        FAQ_DATA = [
+            {"domanda": "Cos'è una polizza assicurativa?", "categoria": "polizze"},
+            {"domanda": "Quali sono i vantaggi di un'assicurazione auto?", "categoria": "auto"},
+            {"domanda": "Come posso denunciare un sinistro?", "categoria": "sinistri"},
+            {"domanda": "Cosa copre un'assicurazione sulla casa?", "categoria": "casa"},
+            {"domanda": "Qual è la differenza tra RC auto e polizza kasko?", "categoria": "auto"},
+            {"domanda": "Quali documenti sono necessari per stipulare una polizza vita?", "categoria": "vita"},
+            {"domanda": "Cosa fare in caso di incidente con colpa?", "categoria": "sinistri"}
+        ]
+        
+        # Funzione fallback per query
+        def query_fallback(query_text):
+            # Simulazione di ricerca semantica molto semplice
+            matches = []
+            for faq in FAQ_DATA:
+                # Cerca se qualche parola della query è nella domanda
+                if any(word.lower() in faq["domanda"].lower() for word in query_text.split()):
+                    matches.append(faq)
+            
+            if matches:
+                best_match = matches[0]["domanda"]
+                categoria = matches[0]["categoria"]
+                return {"documents": [best_match], "metadatas": [{"categoria": categoria}], "distances": [0]}
+            else:
+                return {"documents": ["Non ho trovato informazioni specifiche sulla tua domanda."], 
+                        "metadatas": [{"categoria": "generale"}], 
+                        "distances": [0]}
+        
+        # Funzione fallback con cache
+        from functools import lru_cache
+        
+        @lru_cache(maxsize=100)
+        def cached_query_fallback(query_text):
+            return query_fallback(query_text)
     
     # Sidebar con impostazioni
     st.sidebar.title("Impostazioni")
@@ -155,8 +206,12 @@ try:
             # Log della domanda
             logger.info(f"Sessione: {session_id} - Domanda: {user_input}")
             
-            # Recupera conoscenze dal database con cache
-            knowledge = cached_query_knowledge(client_id, "assicurazioni", user_input)
+            # Recupera conoscenze dal database o fallback
+            if DATABASE_MODE == "normal":
+                knowledge = cached_query_knowledge(client_id, "assicurazioni", user_input)
+            else:
+                knowledge = cached_query_fallback(user_input)
+                
             context = knowledge["documents"][0] if knowledge["documents"] else "Nessun contesto trovato."
             
             # Prompt per il modello
@@ -183,22 +238,34 @@ try:
                     logger.error(f"Sessione: {session_id} - Errore nella generazione della risposta")
     
     with tab2:
-        # Mostra tutte le FAQ salvate nel database
+        # Mostra tutte le FAQ salvate 
         if st.button(t("show_faqs", lang_code)):
-            collection_name = "assicurazioni"
             categoria = st.selectbox("Seleziona una categoria:", ["Tutte", "polizze", "auto", "sinistri", "casa", "vita"])
-            try:
-                collection = client.get_collection(collection_name)
+            
+            if DATABASE_MODE == "normal":
+                collection_name = "assicurazioni"
+                try:
+                    collection = client.get_collection(collection_name)
+                    if categoria != "Tutte":
+                        results = [doc for doc, meta in zip(collection.get()["documents"], collection.get()["metadatas"]) if meta["categoria"] == categoria]
+                    else:
+                        results = collection.get()["documents"]
+                    
+                    st.write("### FAQ Filtrate:")
+                    for doc in results:
+                        st.write("- " + doc)
+                except Exception as e:
+                    st.error(f"Errore nel recupero delle FAQ: {str(e)}")
+            else:
+                # Usa i dati di esempio per le FAQ
                 if categoria != "Tutte":
-                    results = [doc for doc, meta in zip(collection.get()["documents"], collection.get()["metadatas"]) if meta["categoria"] == categoria]
+                    results = [faq["domanda"] for faq in FAQ_DATA if faq["categoria"] == categoria.lower()]
                 else:
-                    results = collection.get()["documents"]
+                    results = [faq["domanda"] for faq in FAQ_DATA]
                 
                 st.write("### FAQ Filtrate:")
                 for doc in results:
                     st.write("- " + doc)
-            except Exception as e:
-                st.error(f"Errore nel recupero delle FAQ: {str(e)}")
     
     with tab3:
         # Calcolo premi assicurativi

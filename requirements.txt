@@ -1,5 +1,4 @@
-# pysqlite3-binary non è disponibile per tutti i sistemi
-# sqlite è usato solo in memoria per compatibilità
+# Le dipendenze di base
 streamlit
 langchain
 langchain-community
