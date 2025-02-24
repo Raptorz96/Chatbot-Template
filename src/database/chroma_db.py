@@ -3,6 +3,7 @@ from chromadb.config import Settings
 import os
 from functools import lru_cache
 import hashlib
+import sys
 
 def get_chroma_client():
     """
@@ -10,30 +11,21 @@ def get_chroma_client():
     Returns:
         ChromaDB client instance
     """
-    # Usa una directory temporanea per il database
-    db_dir = os.path.join(os.getcwd(), "temp_db")
-    os.makedirs(db_dir, exist_ok=True)
-
+    # Forza l'uso del client in memoria per evitare problemi di compatibilità con SQLite
     try:
-        # Prima prova con il client persistente
-        client = chromadb.PersistentClient(
-            path=db_dir,
-            settings=Settings(
-                anonymized_telemetry=False,
-                allow_reset=True
-            )
-        )
-    except:
-        # Se fallisce, usa il client in memoria
         client = chromadb.Client(
             Settings(
                 anonymized_telemetry=False,
-                is_persistent=False,
+                is_persistent=False,  # Usa solo memoria
                 allow_reset=True
             )
         )
-    
-    return client
+        print("Client ChromaDB inizializzato in memoria")
+        return client
+    except Exception as e:
+        print(f"Errore nell'inizializzazione del client ChromaDB: {str(e)}")
+        # Ultimo tentativo con il client di base
+        return chromadb.Client()
 
 def add_knowledge(client, collection_name, texts, metadati):
     """
@@ -68,7 +60,8 @@ def query_knowledge(client, collection_name, query_text):
     try:
         results = collection.query(query_texts=[query_text], n_results=1)
         return results
-    except:
+    except Exception as e:
+        print(f"Errore nella query: {str(e)}")
         return {"documents": ["Si è verificato un errore nella ricerca."], "metadatas": [{}], "distances": [0]}
 
 @lru_cache(maxsize=100)
