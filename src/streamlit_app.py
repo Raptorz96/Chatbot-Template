@@ -176,7 +176,22 @@ try:
     
     # Sidebar con impostazioni
     st.sidebar.title("Impostazioni")
-    selected_language = st.sidebar.selectbox("Lingua / Language:", list(LANGUAGES.keys()))
+    
+    # Dizionario di bandiere per ogni lingua
+    FLAGS = {
+        "Italiano": "🇮🇹",
+        "English": "🇬🇧",
+        "Français": "🇫🇷",
+        "Español": "🇪🇸",
+        "Deutsch": "🇩🇪"
+    }
+    
+    # Opzioni di lingua con bandiere
+    language_options = [f"{FLAGS[lang]} {lang}" for lang in LANGUAGES.keys()]
+    selected_language_with_flag = st.sidebar.selectbox("Lingua / Language:", language_options)
+    
+    # Estrai la lingua senza la bandiera
+    selected_language = selected_language_with_flag.split(" ", 1)[1]
     lang_code = LANGUAGES[selected_language]
     
     # Configura l'interfaccia Streamlit
